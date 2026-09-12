@@ -18,7 +18,9 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = process.env.PORT || 3000;   // 云平台会注入自己的 PORT
-const UPSTREAM = 'https://api.deepseek.com/chat/completions';
+// UPSTREAM_URL 可被环境变量覆盖，仅为测试预留：
+// 指向一个不可达地址时，可零成本验证限流与上游异常处理链路。
+const UPSTREAM = process.env.UPSTREAM_URL || 'https://api.deepseek.com/chat/completions';
 
 // ---------- 配置来源：环境变量优先，其次同目录 config.json ----------
 // 线上部署时无法注入环境变量，所以把配置写进 config.json（记得加 .gitignore）
@@ -144,21 +146,21 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // ---- 静态文件 ----
-  const filePath = req.url === '/' ? '/index.html' : req.url.split('?')[0];
-  const full = path.join(__dirname, path.normalize(filePath).replace(/^(\.\.[\/\\])+/, ''));
+  // ---- 静态文件：白名单机制 ----
+  // 不能"请求什么就读什么"：目录下还有 config.json（含密钥）、key.txt 等文件，
+  // 按路径直读等于把密钥挂在网上。这里只允许首页。
+  const ALLOWED_STATIC = new Set(['/', '/index.html']);
+  if (!ALLOWED_STATIC.has(req.url.split('?')[0])) {
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+    return res.end('404 Not Found');
+  }
+  const full = path.join(__dirname, 'index.html');
   fs.readFile(full, (err, data) => {
     if (err) {
       res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
       return res.end('404 Not Found');
     }
-    const ext = path.extname(full);
-    const types = {
-      '.html': 'text/html; charset=utf-8',
-      '.js': 'text/javascript; charset=utf-8',
-      '.css': 'text/css; charset=utf-8'
-    };
-    res.writeHead(200, { 'Content-Type': types[ext] || 'application/octet-stream' });
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(data);
   });
 });

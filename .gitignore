@@ -2,3 +2,6 @@ config.json
 key.txt
 node_modules/
 .env
+__pycache__/
+.pytest_cache/
+*.pyc

@@ -48,10 +48,38 @@ DEEPSEEK_API_KEY=sk-你的key node server.js
 ai-demo/
 ├── index.html          # 前端页面与全部交互逻辑
 ├── server.js           # 静态服务 + 接口代理 + 鉴权限流
+├── tests/              # pytest 接口自动化用例（19 条）
+├── pytest.ini
+├── requirements-dev.txt
 ├── config.example.json # 配置示例（不含密钥，可提交）
 ├── config.json         # 实际配置（含密钥，已在 .gitignore 中）
 └── .gitignore
 ```
+
+## 测试
+
+用 pytest + requests 为本项目的接口编写了 19 条自动化用例，覆盖正常链路、鉴权、限流与异常兜底。
+
+```bash
+pip install -r requirements-dev.txt
+pytest                # 全部用例
+pytest --no-upstream  # 跳过真实调用，零费用
+```
+
+| 文件 | 覆盖点 |
+|------|--------|
+| `tests/test_health.py` | 健康检查可用性与字段语义 |
+| `tests/test_auth.py` | 无口令 / 错口令 401、正确口令放行、上游异常转 502 |
+| `tests/test_chat.py` | 非流式返回结构、SSE 流式分片与结束标记、非法参数被拒 |
+| `tests/test_ratelimit.py` | 超限返回 429、按 IP 隔离、异常响���为 JSON |
+| `tests/test_static.py` | 首页可访问、404、含密钥文件不可被静态下载 |
+
+设计要点：
+
+- **用例隔离**：每个用例发一个专属 IP（`X-Forwarded-For`），限流按 IP 计数，因此可任意顺序、可重复执行。
+- **零成本验证异常链路**：另起一个上游指向不可达地址的实例，鉴权、限流、502 兜底都能验证而不产生调用费用。
+- **服务由 fixture 托管**：自动拉起 node 子进程并在结束后回收，不需要人工先开服务。
+- **测试发现的真实问题**：静态目录原先按请求路径直读文件，会泄露含密钥的 `config.json`，已改为白名单机制，并留下用例防回归。
 
 ## 接口
 
