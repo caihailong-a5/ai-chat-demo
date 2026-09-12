@@ -32,12 +32,7 @@ $env:DEEPSEEK_API_KEY="sk-你的key"; node server.js
 
 > 注意：`file://` 协议下部分浏览器会因 CORS 拦截请求，如果报错，用方式一。
 
-## 核心逻辑（面试/复盘用四句话讲清）
 
-1. **收集**：`messages` 数组维护完整上下文，每轮把用户的话 `push` 进去 —— 多轮对话全靠它，AI 本身是无状态的。
-2. **发送**：`fetch(url, { method:'POST', headers:{Authorization}, body: JSON.stringify({model, messages, stream:true}) })`
-3. **接收**：`stream:true` 时服务端按 SSE 格式一行行推数据，用 `res.body.getReader()` 边读边拼，遇到网络分包要用 `buffer` 存住不完整的最后一行。
-4. **渲染**：解析出 `delta.content` 追加到页面，同时把完整回答 `push` 回 `messages`，下一轮才有记忆。
 
 
 
