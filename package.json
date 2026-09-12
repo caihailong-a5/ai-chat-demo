@@ -1,0 +1,13 @@
+{
+  "name": "ai-chat-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI 对话网页 Demo：Node 代理 + 流式前端",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
