@@ -1,13 +1,8 @@
 {
-  "name": "ai-chat-demo",
-  "version": "1.0.0",
-  "private": true,
-  "description": "AI 对话网页 Demo：Node 代理 + 流式前端",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "engines": {
-    "node": ">=18"
-  }
+  "_说明": "配置示例。复制为 config.json 后填入真实值，或直接用环境变量覆盖。",
+  "apiKey": "sk-在这里填你的APIKey",
+  "accessCode": "在这里填访问口令",
+  "ratePerMin": 5,
+  "ratePerDay": 60,
+  "globalQuota": 200
 }
