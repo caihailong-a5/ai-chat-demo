@@ -1,0 +1,32 @@
+name: API Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  api-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 准备 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 准备 Node（被测服务需要）
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 安装依赖
+        run: pip install -r requirements-dev.txt
+
+      - name: 运行接口测试
+        # --no-upstream 跳过需要真实调用模型接口的用例，
+        # 保证无密钥的 CI 环境也能跑完（15 条），且零调用费用。
+        run: pytest -v --no-upstream
