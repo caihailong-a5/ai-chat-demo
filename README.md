@@ -1,5 +1,7 @@
 # AI Chat Demo
 
+[![API Tests](https://github.com/caihailong-a5/ai-chat-demo/actions/workflows/api-tests.yml/badge.svg)](https://github.com/caihailong-a5/ai-chat-demo/actions/workflows/api-tests.yml)
+
 一个从零实现的 AI 对话网页应用：前端负责交互与流式渲染，Node 后端负责接口代理、鉴权与限流。
 **零第三方依赖**，只用 Node 原生模块和浏览器原生 API。
 
